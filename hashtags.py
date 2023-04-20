@@ -16,7 +16,6 @@ class HashtagManager:
         for line in fileinput.input([tweet_data_file]):
             tweet = json.loads(line)
             if "entities" in tweet:
-                print(tweet["entities"]["hashtags"])
                 hashtags = tweet["entities"]["hashtags"][0]["text"]
                 self._add(hashtags)
 
@@ -27,7 +26,7 @@ class HashtagManager:
 
     def _add(self, hashtags):
         for vertex_a in hashtags:
-            # Not using map change all to lower to reduce
+            # Not using map to change all to lower to reduce
             # iterations over the list
             vertex_a = vertex_a.lower()
             if vertex_a not in self.graph:
@@ -52,7 +51,6 @@ class HashtagManager:
 
 
 hashtag_manager = HashtagManager("tweets_test.txt")
-print(hashtag_manager.graph)
 print(hashtag_manager.total_vertices)
 print(hashtag_manager.total_degree_sum)
 print(hashtag_manager.compute_average_degree())
@@ -61,3 +59,14 @@ print(hashtag_manager.add_new_tweets("new_tweets_test.txt"))
 print(hashtag_manager.total_vertices)
 print(hashtag_manager.total_degree_sum)
 print(hashtag_manager.compute_average_degree())
+
+"""
+print(hashtag_manager.add_new_tweets("tweets.txt"))
+print(hashtag_manager.total_vertices)
+print(hashtag_manager.total_degree_sum)
+print(hashtag_manager.compute_average_degree())
+"""
+
+
+
+
