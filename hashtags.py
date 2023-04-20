@@ -58,7 +58,6 @@ class HashtagManager:
             if vertex_a not in self.graph:
                 self.graph[vertex_a] = set()
             for vertex_b in hashtags:
-                vertex_b = vertex_b.lower()
                 if vertex_a != vertex_b:
                     if vertex_b not in self.graph[vertex_a]:
                         self.add_edge(vertex_a, vertex_b)
@@ -110,8 +109,16 @@ class TestTweetParser(unittest.TestCase):
 
     def test_loading_from_file(self):
         self.hashtag_manager.build_graph("tweets.txt")
-        assert (abs(
-            self.hashtag_manager.compute_average_degree() - 2.488) <= 0.01
+        assert (
+            abs(self.hashtag_manager.compute_average_degree() - 2.488) <= 0.01
+        )
+        self.hashtag_manager.reset_graph()
+
+    def test_loading_new_tweets_from_file(self):
+        self.hashtag_manager.load_new_tweets("tweets.txt")
+        # Loading a dup of the tweet file should yielf no change in the avg degree
+        assert (
+            abs(self.hashtag_manager.compute_average_degree() - 2.488) <= 0.01
         )
         self.hashtag_manager.reset_graph()
 
@@ -123,8 +130,8 @@ class TestTweetParser(unittest.TestCase):
         self.hashtag_manager.add(["Gretel"])
         self.hashtag_manager.add(["rocketship", "Gretel"])
         self.hashtag_manager.add(["cats", "cats", "cats"])
-        assert (abs(
-            self.hashtag_manager.compute_average_degree() - 1.67) <= 0.01
+        assert (
+            abs(self.hashtag_manager.compute_average_degree() - 1.67) <= 0.01
         )
 
     def test_tweets_with_same_tags_arent_counted(self):
@@ -154,8 +161,8 @@ class TestTweetParser(unittest.TestCase):
         assert (self.hashtag_manager.compute_average_degree() == 1)
         self.hashtag_manager.delete(["gretel", "ai"])
         # 3 vertices, 3 edges
-        assert (abs(
-            self.hashtag_manager.compute_average_degree() - 0.66) <= 0.01
+        assert (
+            abs(self.hashtag_manager.compute_average_degree() - 0.66) <= 0.01
         )
 
     def test_case_delete_tweet_tag_not_added_before(self):
