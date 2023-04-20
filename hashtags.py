@@ -16,7 +16,10 @@ class HashtagManager:
         for line in fileinput.input([tweet_data_file]):
             tweet = json.loads(line)
             if "entities" in tweet:
-                hashtags = tweet["entities"]["hashtags"][0]["text"]
+                hashtags = [
+                    tag["text"]
+                    for tag in tweet["entities"]["hashtags"]
+                ]
                 self._add(hashtags)
 
     def compute_average_degree(self):
@@ -50,6 +53,7 @@ class HashtagManager:
         self._build_graph(tweets_file)
 
 
+"""
 hashtag_manager = HashtagManager("tweets_test.txt")
 print(hashtag_manager.total_vertices)
 print(hashtag_manager.total_degree_sum)
@@ -61,11 +65,16 @@ print(hashtag_manager.total_degree_sum)
 print(hashtag_manager.compute_average_degree())
 
 """
-print(hashtag_manager.add_new_tweets("tweets.txt"))
+
+hashtag_manager = HashtagManager("tweets.txt")
 print(hashtag_manager.total_vertices)
 print(hashtag_manager.total_degree_sum)
 print(hashtag_manager.compute_average_degree())
-"""
+
+
+
+
+
 
 
 
