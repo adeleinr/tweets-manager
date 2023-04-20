@@ -6,7 +6,6 @@ from collections import defaultdict, Counter
 
 class HashtagManager:
     def __init__(self):
-        self.average_degree = 0
         self.total_edges = 0
         self.total_degree_sum = 0
         # {"tagA": ["tagB", "tagC"]}
@@ -29,7 +28,6 @@ class HashtagManager:
                 self.add(hashtags)
 
     def reset_graph(self):
-        self.average_degree = 0
         self.total_edges = 0
         self.total_degree_sum = 0
         self.graph = defaultdict(set)
