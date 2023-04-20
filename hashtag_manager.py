@@ -18,14 +18,15 @@ class HashtagManager:
     def build_graph(self, tweet_data_file):
         # Using input for reading one line at a time instead of bringing
         # the whole file into memory
-        for line in fileinput.input([tweet_data_file]):
-            tweet = json.loads(line)
-            if "entities" in tweet:
-                hashtags = [
-                    tag["text"]
-                    for tag in tweet["entities"]["hashtags"]
-                ]
-                self.add(hashtags)
+        with open(tweet_data_file) as file:
+            for line in file:
+                tweet = json.loads(line)
+                if "entities" in tweet:
+                    hashtags = [
+                        tag["text"]
+                        for tag in tweet["entities"]["hashtags"]
+                    ]
+                    self.add(hashtags)
 
     def reset_graph(self):
         self.total_edges = 0
@@ -92,14 +93,15 @@ class HashtagManager:
     def delete_tweet(self, tweet_file):
         # Using input for reading one line at a time instead of bringing
         # the whole file into memory
-        for line in fileinput.input([tweet_file]):
-            tweet = json.loads(line)
-            if "entities" in tweet:
-                hashtags = [
-                    tag["text"]
-                    for tag in tweet["entities"]["hashtags"]
-                ]
-                self.delete(hashtags)
+        with open(tweet_file) as file:
+            for line in file:
+                tweet = json.loads(line)
+                if "entities" in tweet:
+                    hashtags = [
+                        tag["text"]
+                        for tag in tweet["entities"]["hashtags"]
+                    ]
+                    self.delete(hashtags)
 
 
 class TestTweetParser(unittest.TestCase):
