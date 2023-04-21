@@ -1,4 +1,3 @@
-import fileinput
 import json
 import unittest
 from collections import defaultdict, Counter
@@ -53,39 +52,39 @@ class HashtagManager:
         if hashtags:
             hashtags = list(set(map(str.lower, hashtags)))
             self.tag_counter.update(hashtags)
-        for vertex_a in set(hashtags):
-            if vertex_a not in self.graph:
-                self.graph[vertex_a] = set()
-            for vertex_b in hashtags:
-                if vertex_a != vertex_b:
-                    if vertex_b not in self.graph[vertex_a]:
-                        self.add_edge(vertex_a, vertex_b)
-                    if vertex_a not in self.graph[vertex_b]:
-                        self.add_edge(vertex_b, vertex_a)
+            for vertex_a in set(hashtags):
+                if vertex_a not in self.graph:
+                    self.graph[vertex_a] = set()
+                for vertex_b in hashtags:
+                    if vertex_a != vertex_b:
+                        if vertex_b not in self.graph[vertex_a]:
+                            self.add_edge(vertex_a, vertex_b)
+                        if vertex_a not in self.graph[vertex_b]:
+                            self.add_edge(vertex_b, vertex_a)
 
     def delete(self, hashtags):
         if hashtags:
             hashtags = list(set(map(str.lower, hashtags)))
             self.tag_counter.subtract(hashtags)
-        for vertex_a in hashtags:
-            if vertex_a not in self.graph:
-                # In the case try to remove a tweet that was never
-                # added to the graph to begin with, it is a no-op
-                return
-            for vertex_b in hashtags:
-                if vertex_a != vertex_b:
-                    if vertex_b in self.graph[vertex_a]:
-                        self.delete_edge(vertex_a, vertex_b)
-                    if vertex_a in self.graph[vertex_b]:
-                        self.delete_edge(vertex_b, vertex_a)
-                    # If this is the only tweet left that references this
-                    # tag then we can remove it
-                    if self.tag_counter[vertex_a] == 0:
-                        del self.tag_counter[vertex_a]
-                        self.graph.pop(vertex_a)
-                    if self.tag_counter[vertex_b] == 0:
-                        del self.tag_counter[vertex_b]
-                        self.graph.pop(vertex_b)
+            for vertex_a in hashtags:
+                if vertex_a not in self.graph:
+                    # In the case try to remove a tweet that was never
+                    # added to the graph to begin with, it is a no-op
+                    return
+                for vertex_b in hashtags:
+                    if vertex_a != vertex_b:
+                        if vertex_b in self.graph[vertex_a]:
+                            self.delete_edge(vertex_a, vertex_b)
+                        if vertex_a in self.graph[vertex_b]:
+                            self.delete_edge(vertex_b, vertex_a)
+                        # If this is the only tweet left that references this
+                        # tag then we can remove it
+                        if self.tag_counter[vertex_a] == 0:
+                            del self.tag_counter[vertex_a]
+                            self.graph.pop(vertex_a)
+                        if self.tag_counter[vertex_b] == 0:
+                            del self.tag_counter[vertex_b]
+                            self.graph.pop(vertex_b)
 
     def load_new_tweets(self, tweets_file):
         self.build_graph(tweets_file)
@@ -116,7 +115,8 @@ class TestTweetParser(unittest.TestCase):
 
     def test_loading_new_tweets_from_file(self):
         self.hashtag_manager.load_new_tweets("tweets.txt")
-        # Loading a dup of the tweet file should yielf no change in the avg degree
+        # Loading a dup of the tweet file should yielf no change
+        # in the avg degree
         assert (
             abs(self.hashtag_manager.compute_average_degree() - 2.488) <= 0.01
         )
