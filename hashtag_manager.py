@@ -52,6 +52,7 @@ class HashtagManager:
         if hashtags:
             hashtags = list(set(map(str.lower, hashtags)))
             self.tag_counter.update(hashtags)
+            # Should use itertools.combinations
             for vertex_a in set(hashtags):
                 if vertex_a not in self.graph:
                     self.graph[vertex_a] = set()
