@@ -91,8 +91,6 @@ class HashtagManager:
         self.build_graph(tweets_file)
 
     def delete_tweet(self, tweet_file):
-        # Using input for reading one line at a time instead of bringing
-        # the whole file into memory
         with open(tweet_file) as file:
             for line in file:
                 tweet = json.loads(line)
