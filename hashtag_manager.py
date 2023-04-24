@@ -16,8 +16,6 @@ class HashtagManager:
         self.tag_counter = Counter()
 
     def build_graph(self, tweet_data_file):
-        # Using input for reading one line at a time instead of bringing
-        # the whole file into memory
         with open(tweet_data_file) as file:
             for line in file:
                 tweet = json.loads(line)
