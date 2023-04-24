@@ -1,3 +1,4 @@
+import itertools
 import json
 import unittest
 from collections import defaultdict, Counter
@@ -34,14 +35,16 @@ class HashtagManager:
         self.tag_counter = Counter()
 
     def add_edge(self, vertex_a, vertex_b):
-        self.graph[vertex_a].add(vertex_b)
-        self.total_edges += 1
-        self.total_degree_sum += 1
+        if vertex_b not in self.graph[vertex_a]:
+            self.graph[vertex_a].add(vertex_b)
+            self.total_edges += 1
+            self.total_degree_sum += 1
 
     def delete_edge(self, vertex_a, vertex_b):
-        self.graph[vertex_a].remove(vertex_b)
-        self.total_edges -= 1
-        self.total_degree_sum -= 1
+        if vertex_b in self.graph[vertex_a]:
+            self.graph[vertex_a].remove(vertex_b)
+            self.total_edges -= 1
+            self.total_degree_sum -= 1
 
     def compute_average_degree(self):
         if self.graph:
@@ -52,40 +55,36 @@ class HashtagManager:
         if hashtags:
             hashtags = list(set(map(str.lower, hashtags)))
             self.tag_counter.update(hashtags)
-            # Should use itertools.combinations
-            for vertex_a in set(hashtags):
-                if vertex_a not in self.graph:
-                    self.graph[vertex_a] = set()
-                for vertex_b in hashtags:
-                    if vertex_a != vertex_b:
-                        if vertex_b not in self.graph[vertex_a]:
-                            self.add_edge(vertex_a, vertex_b)
-                        if vertex_a not in self.graph[vertex_b]:
-                            self.add_edge(vertex_b, vertex_a)
+            if len(hashtags) == 1 and hashtags[0] not in self.graph:
+                self.graph[hashtags[0]] = set()
+            for vertex_a, vertex_b in itertools.combinations(hashtags, 2):
+                self.add_edge(vertex_a, vertex_b)
+                self.add_edge(vertex_b, vertex_a)
 
     def delete(self, hashtags):
         if hashtags:
             hashtags = list(set(map(str.lower, hashtags)))
             self.tag_counter.subtract(hashtags)
-            for vertex_a in hashtags:
-                if vertex_a not in self.graph:
+            for vertex_a, vertex_b in itertools.combinations(hashtags, 2):
+                if vertex_a not in self.graph or vertex_b not in self.graph:
                     # In the case try to remove a tweet that was never
                     # added to the graph to begin with, it is a no-op
                     return
-                for vertex_b in hashtags:
-                    if vertex_a != vertex_b:
-                        if vertex_b in self.graph[vertex_a]:
-                            self.delete_edge(vertex_a, vertex_b)
-                        if vertex_a in self.graph[vertex_b]:
-                            self.delete_edge(vertex_b, vertex_a)
-                        # If this is the only tweet left that references this
-                        # tag then we can remove it
-                        if self.tag_counter[vertex_a] == 0:
-                            del self.tag_counter[vertex_a]
-                            self.graph.pop(vertex_a)
-                        if self.tag_counter[vertex_b] == 0:
-                            del self.tag_counter[vertex_b]
-                            self.graph.pop(vertex_b)
+                self.delete_edge(vertex_a, vertex_b)
+                self.delete_edge(vertex_b, vertex_a)
+                # If this is the only tweet left that references this
+                # tag then we can remove it
+                if self.tag_counter[vertex_a] == 0:
+                    del self.tag_counter[vertex_a]
+                    self.graph.pop(vertex_a)
+                if self.tag_counter[vertex_b] == 0:
+                    del self.tag_counter[vertex_b]
+                    self.graph.pop(vertex_b)
+            if len(hashtags) == 1:
+                if self.tag_counter[hashtags[0]] == 0:
+                    del self.tag_counter[hashtags[0]]
+                    self.graph.pop(hashtags[0])
+                    return
 
     def load_new_tweets(self, tweets_file):
         self.build_graph(tweets_file)
@@ -114,7 +113,7 @@ class TestTweetParser(unittest.TestCase):
 
     def test_loading_new_tweets_from_file(self):
         self.hashtag_manager.load_new_tweets("tweets.txt")
-        # Loading a dup of the tweet file should yielf no change
+        # Loading a dup of the tweet file should yield no change
         # in the avg degree
         assert (
             abs(self.hashtag_manager.compute_average_degree() - 2.488) <= 0.01
